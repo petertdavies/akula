@@ -418,6 +418,7 @@ fn build_storage_trie(
 struct GenerateWalker<'db: 'tx, 'tx: 'co, 'co, RwTx>
 where
     RwTx: MutableTransaction<'db>,
+    RwTx: 'tx,
 {
     cursor: RwTx::Cursor<'tx, tables::HashedAccount>,
     storage_cursor: RwTx::CursorDupSort<'tx, tables::HashedStorage>,

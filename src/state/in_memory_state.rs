@@ -142,7 +142,7 @@ impl InMemoryState {
                     .or_default()
             }
         } + difficulty;
-        self.difficulty[block_number].entry(hash).insert(d);
+        self.difficulty[block_number].entry(hash).insert_entry(d);
     }
 
     pub fn canonize_block(&mut self, block_number: BlockNumber, block_hash: H256) {
