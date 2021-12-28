@@ -245,6 +245,31 @@ where
     }
 }
 
+pub fn walk_back_dup_current<'tx: 'cur, 'cur, C, T>(
+    cursor: &'cur mut C,
+) -> impl Stream<Item = anyhow::Result<T::Value>> + 'cur
+where
+    C: CursorDupSort<'tx, T>,
+    T: DupSort,
+    T::Key: TableDecode,
+    'tx: 'cur,
+{
+    try_stream! {
+        if let Some(mut value) = cursor.last_dup().await? {
+            loop {
+                yield value;
+
+                match cursor.prev_dup().await? {
+                    Some((_, v)) => {
+                        value = v;
+                    }
+                    None => break,
+                }
+            }
+        }
+    }
+}
+
 pub fn ttw<'a, T, E>(f: impl Fn(&T) -> bool + 'a) -> impl Fn(&Result<T, E>) -> bool + 'a {
     move |res| match res {
         Ok(v) => (f)(v),
