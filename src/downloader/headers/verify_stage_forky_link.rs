@@ -13,7 +13,7 @@ use std::{
 use tracing::*;
 
 /// Verifies the sequence rules to link the slices with the last known verified header and sets Verified status.
-pub struct VerifyStageLinearLink {
+pub struct VerifyStageForkyLink {
     header_slices: Arc<HeaderSlices>,
     chain_config: ChainConfig,
     start_block_num: BlockNumber,
@@ -23,7 +23,7 @@ pub struct VerifyStageLinearLink {
     remaining_count: usize,
 }
 
-impl VerifyStageLinearLink {
+impl VerifyStageForkyLink {
     pub fn new(
         header_slices: Arc<HeaderSlices>,
         chain_config: ChainConfig,
@@ -39,14 +39,14 @@ impl VerifyStageLinearLink {
             pending_watch: HeaderSliceStatusWatch::new(
                 HeaderSliceStatus::VerifiedInternally,
                 header_slices,
-                "VerifyStageLinearLink",
+                "VerifyStageForkyLink",
             ),
             remaining_count: 0,
         }
     }
 
     pub async fn execute(&mut self) -> anyhow::Result<()> {
-        debug!("VerifyStageLinearLink: start");
+        debug!("VerifyStageForkyLink: start");
 
         // initially remaining_count = 0, so we wait for any internally verified slices to try to link them
         // since we want to link sequentially, there might be some remaining slices
@@ -56,13 +56,13 @@ impl VerifyStageLinearLink {
 
         let pending_count = self.pending_watch.pending_count();
 
-        debug!("VerifyStageLinearLink: verifying {} slices", pending_count);
+        debug!("VerifyStageForkyLink: verifying {} slices", pending_count);
         let updated_count = self.verify_pending_monotonic(pending_count)?;
-        debug!("VerifyStageLinearLink: updated {} slices", updated_count);
+        debug!("VerifyStageForkyLink: updated {} slices", updated_count);
 
         self.remaining_count = pending_count - updated_count;
 
-        debug!("VerifyStageLinearLink: done");
+        debug!("VerifyStageForkyLink: done");
         Ok(())
     }
 
@@ -140,17 +140,17 @@ impl VerifyStageLinearLink {
             && header_slice_verifier::verify_link_block_nums(child, parent)
             && header_slice_verifier::verify_link_timestamps(child, parent)
             && header_slice_verifier::verify_link_difficulties(
-                child,
-                parent,
-                self.chain_config.chain_spec(),
-            )
+            child,
+            parent,
+            self.chain_config.chain_spec(),
+        )
             && header_slice_verifier::verify_link_pow(child, parent)
     }
 }
 
 #[async_trait::async_trait]
-impl super::stage::Stage for VerifyStageLinearLink {
+impl super::stage::Stage for VerifyStageForkyLink {
     async fn execute(&mut self) -> anyhow::Result<()> {
-        VerifyStageLinearLink::execute(self).await
+        VerifyStageForkyLink::execute(self).await
     }
 }

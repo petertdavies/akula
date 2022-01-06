@@ -1,5 +1,6 @@
 mod average_delta_counter;
 pub mod downloader;
+mod downloader_forky;
 mod downloader_linear;
 mod downloader_preverified;
 mod header;
@@ -18,6 +19,7 @@ mod refill_stage;
 mod retry_stage;
 mod save_stage;
 mod top_block_estimate_stage;
+mod verify_stage_forky_link;
 mod verify_stage_linear;
 mod verify_stage_linear_link;
 mod verify_stage_preverified;
