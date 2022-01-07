@@ -34,7 +34,7 @@ pub mod res;
 pub mod sentry;
 pub mod stagedsync;
 pub mod stages;
-mod state;
+pub mod state;
 pub(crate) mod util;
 
 pub use stagedsync::stages::StageId;
